@@ -6,12 +6,24 @@
 // Returns 'true' if the character is a DELIMITER.
 bool isDelimiterHA(char character)
 {
+    // Check for single-character delimiters
     if (character == ' ' || character == '+' || character == '-' || character == '*' ||
-        character == '/' || character == ',' || character == ';' || character == '>' ||
-        character == '<' || character == '=' || character == '(' || character == ')' ||
-        character == '[' || character == ']' || character == '{' || character == '}')
+        character == '/' || character == ',' || character == ';'
+        || character == '>' || character == '<' || character == '='
+        || character == '(' || character == ')' || character == '[' ||
+        character == ']' || character == '{' || character == '}' ||
+        character == ':')  // Added ':' as a delimiter
         return (true);
     return (false);
+}
+
+// Returns 'true' if the string is a multi-character DELIMITER.
+bool isMultiCharDelimiterHA(const char* str)
+{
+    // Check for multi-character delimiters
+    if (strcmp(str, ":") == 0)  // Check for ':'
+        return true;
+    return false;
 }
 
 // Returns 'true' if the character is an OPERATOR.
@@ -22,6 +34,49 @@ bool isOperatorHA(char character)
         character == '=')
         return (true);
     return (false);
+}
+
+const char* getDelimiterType(char delimiter)
+{
+    switch (delimiter)
+    {
+    case ' ':
+        return "SPACE";
+    case '+':
+        return "PLUS";
+    case '-':
+        return "MINUS";
+    case '*':
+        return "TIMES";
+    case '/':
+        return "DIVIDE";
+    case ',':
+        return "COMMA";
+    case ';':
+        return "SEMICOLON";
+    case '>':
+        return "GREATER_THAN";
+    case '<':
+        return "LESS_THAN";
+    case '=':
+        return "EQUALS";
+    case '(':
+        return "LEFT_PAREN";
+    case ')':
+        return "RIGHT_PAREN";
+    case '[':
+        return "LEFT_BRACKET";
+    case ']':
+        return "RIGHT_BRACKET";
+    case '{':
+        return "LEFT_BRACE";
+    case '}':
+        return "RIGHT_BRACE";
+    case ':':
+        return "COLON";
+    default:
+        return "UNKNOWN";
+    }
 }
 
 // Returns 'true' if the string is a VALID IDENTIFIER.
@@ -117,8 +172,13 @@ void parseInputStringHA(char* string)
 
         if (isDelimiterHA(string[right]) == true && left == right) {
             if (isOperatorHA(string[right]) == true)
-                printf("'%c' IS AN OPERATOR\n", string[right]);
-
+                printf("'%c'%s", string[right], getDelimiterType(string[right]));
+            else if (isMultiCharDelimiterHA(&string[right])) {
+                printf("'%s'%s", extractSubstringHA(string, right, right + 1), getDelimiterType(':'));
+                right++;  // Move the index an extra step for multi-character delimiter
+            }
+            else
+                printf("'%c'%s ", string[right], getDelimiterType(string[right]));
             right++;
             left = right;
         }
@@ -127,21 +187,21 @@ void parseInputStringHA(char* string)
             char* subString = extractSubstringHA(string, left, right - 1);
 
             if (isKeywordHA(subString) == true)
-                printf("'%s' IS A KEYWORD\n", subString);
+                printf("'%s'KEYWORD ", subString);
 
             else if (isIntegerHA(subString) == true)
-                printf("'%s' IS AN INTEGER\n", subString);
+                printf("'%s'INTLIT ", subString);
 
             else if (isRealNumberHA(subString) == true)
-                printf("'%s' IS A REAL NUMBER\n", subString);
+                printf("'%s'REAL NUMBER ", subString);
 
             else if (isValidIdentifierHA(subString) == true
                 && isDelimiterHA(string[right - 1]) == false)
-                printf("'%s' IS A VALID IDENTIFIER\n", subString);
+                printf("'%s'IDENT ", subString);
 
             else if (isValidIdentifierHA(subString) == false
                 && isDelimiterHA(string[right - 1]) == false)
-                printf("'%s' IS NOT A VALID IDENTIFIER\n", subString);
+                printf("'%s'NOTIDENT ", subString);
             left = right;
         }
     }
@@ -151,16 +211,15 @@ void parseInputStringHA(char* string)
 // DRIVER FUNCTION
 int main()
 {
-    // maximum length of string is 100 here 
+    // maximum length of string is 100 here
     char inputString[100];
     char* input = fgets(inputString, sizeof(inputString), stdin);
 
     // Check if fgets was successful in reading the input
     if (input != NULL) {
-        // calling the parseInputString function
+        input[strcspn(input, "\n")] = '\0';
         parseInputStringHA(input);
-    }
-    else {
+    } else {
         printf("Error reading input\n");
     }
 
