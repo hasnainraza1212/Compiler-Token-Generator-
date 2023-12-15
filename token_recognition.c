@@ -193,7 +193,7 @@ void parseInputStringHA(char* string)
                 printf("'%s'INTLIT ", subString);
 
             else if (isRealNumberHA(subString) == true)
-                printf("'%s'REAL NUMBER ", subString);
+                printf("'%s'FLOAT-INT ", subString);
 
             else if (isValidIdentifierHA(subString) == true
                 && isDelimiterHA(string[right - 1]) == false)
